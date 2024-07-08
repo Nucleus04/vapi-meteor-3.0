@@ -13,7 +13,7 @@ class FirstLastName extends FuncTemplate {
      * @param {String} lastName 
      * @returns 
      */
-    verifyFirstLastName(firstName, lastName) {
+    async verifyFirstLastName(firstName, lastName) {
         if (this.Data) {
             const consumer = new Consumer(this.Data);
             return consumer.verifyFirstLastName(firstName, lastName);
@@ -26,19 +26,19 @@ class FirstLastName extends FuncTemplate {
             let query = { businessId, first: firstOnly, partial: lastName.toUpperCase() };
             let sort = { createdAt: -1 };
 
-            existing = Server.RemoteDB.getCollection("consumer_info").findOne(query);
+            existing = await Server.RemoteDB.getCollection("consumer_info").findOneAsync(query);
             // if (!existing) {
             //     query = { businessId, first };
             //     console.time("2nd query")
-            //     existing = Server.RemoteDB.getCollection("consumer_info").findOne(query);
+            //     existing = Server.RemoteDB.getCollection("consumer_info").findOneAsync(query);
             //     console.timeEnd("2nd query")
             // }
             if (!existing) {
                 query = { firstName: firstOnly, lastName: lastOnly };
-                existing = DB.Consumers.findOne(query);
+                existing = await DB.Consumers.findOneAsync(query);
             }
             if (existing) {
-                const billingInfo = Server.RemoteDB.getCollection("billings").findOne({ consumerNumber: existing.consumerNumber, account_identifier: { $exists: true } }, { sort });
+                const billingInfo = await Server.RemoteDB.getCollection("billings").findOneAsync({ consumerNumber: existing.consumerNumber, account_identifier: { $exists: true } }, { sort });
                 if (billingInfo) {
                     const account = Consumer.Default.account;
                     const consumer = new Consumer({

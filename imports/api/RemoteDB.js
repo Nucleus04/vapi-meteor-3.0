@@ -48,9 +48,20 @@ export class RemoteDatabase {
      * @param {String} collection 
      * @returns {Mongo.Collection}
      */
+    // getCollection(collection) {
+    //     if (!this.#collections[collection]) {
+    //         this.#collections[collection] = new Mongo.Collection(collection, { _driver: this.Instance });
+    //     }
+    //     return this.#collections[collection];
+    // }
     getCollection(collection) {
         if (!this.#collections[collection]) {
-            this.#collections[collection] = new Mongo.Collection(collection, { _driver: this.Instance });
+            try {
+                this.#collections[collection] = new Mongo.Collection(collection, { _driver: this.Instance });
+            } catch (error) {
+                Utilities.showError(`Error creating collection ${collection}:`, error);
+                return null;
+            }
         }
         return this.#collections[collection];
     }
@@ -68,3 +79,4 @@ export class RemoteDatabase {
         }
     }
 }
+

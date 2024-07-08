@@ -8,8 +8,8 @@ class CallForwarding extends FuncTemplate {
     constructor(async, server, messages, func, meta) {
         super(async, server, messages, func, meta);
     }
-    forwardCall() {
-        const channel = DB.Channels.findOne({ businessId: Consumer.Default.inboundBusinessId });
+    async forwardCall() {
+        const channel = await DB.Channels.findOneAsync({ businessId: Consumer.Default.inboundBusinessId });
         if (!channel) return Promise.reject("no channel");
         const ch = new Channels(channel);
         const tw = new TwilioCall(ch.Api.key, ch.Api.secret, ch.number);

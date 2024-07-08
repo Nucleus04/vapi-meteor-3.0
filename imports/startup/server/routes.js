@@ -1,45 +1,52 @@
-import Server from "../../api/classes/server/Server";
 import { Meteor } from "meteor/meteor";
+import { WebApp } from "meteor/webapp";
+import connect from "connect";
 import bodyParser from "body-parser";
 import multer from "multer";
 
+import Server from "../../api/classes/server/Server";
 import Utilities from "../../api/classes/server/Utilities";
 
-Picker.middleware(multer().any());
-Picker.middleware(bodyParser.json());
-Picker.middleware(bodyParser.urlencoded({ extended: false }));
-
 Meteor.startup(() => {
-    Picker.route("/api/info", async function (params, request, response) {
+    const app = connect();
+
+    // Middleware
+    app.use(multer().any());
+    app.use(bodyParser.json());
+    app.use(bodyParser.urlencoded({ extended: false }));
+
+    // Routes
+    app.use("/api/info", async (req, res) => {
         try {
-            const retval = await Server.Vapi.parseRequest(request.body);
-            // console.dir(retval, { depth: null });
+            const retval = await Server.Vapi.parseRequest(req.body);
             Utilities.showDebug("Response: ", JSON.stringify(retval));
-            response.writeHead(retval.statusCode, { "Content-Type": "application/json" });
-            response.end(JSON.stringify(retval.message));
+            res.writeHead(retval.statusCode, { "Content-Type": "application/json" });
+            res.end(JSON.stringify(retval.message));
         } catch (error) {
             console.error(error);
-            response.statusCode = 500;
-            response.end("Error: " + error.message || error);
+            res.statusCode = 500;
+            res.end("Error: " + (error.message || error));
         }
     });
-    Picker.route("/api/session", async function (params, request, response) {
-        // if(request.body.message.type === "end-of-call-report")
-        // console.dir(request.body, { depth: null }); 
-        const session = Server.Vapi.createSession(request.body);
+
+    app.use("/api/session", async (req, res) => {
+        const session = Server.Vapi.createSession(req.body);
         if (!session) {
-            response.writeHead(500, { "Content-Type": "application/json" });
-            response.end();
+            res.writeHead(500, { "Content-Type": "application/json" });
+            res.end();
             return;
         }
-        session.parseSession(request.body);
-        response.writeHead(200, { "Content-Type": "application/json" });
-        response.end();
+        session.parseSession(req.body);
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end();
     });
-    Picker.route("/receipt", async function (params, request, response) {
-        // console.dir(request.body, { depth: null });
-        Utilities.showDebug("Receipt: ", request.body);
-        response.writeHead(200, { "Content-Type": "application/json" });
-        response.end();
+
+    app.use("/receipt", async (req, res) => {
+        Utilities.showDebug("Receipt: ", req.body);
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end();
     });
+
+    // Attach the connect app to WebApp
+    WebApp.connectHandlers.use(app);
 });

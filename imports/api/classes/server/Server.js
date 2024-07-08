@@ -94,8 +94,10 @@ class Server {
             await Promise.all([this.registerIndexes(), this.startRedis()]);
             if (this.Config.vapi)
                 this.#vapi = new Vapi(this.Config.vapi.orgId, this.Config.vapi.key, this.Config.host, this.Config.phoneId);
-            if (this.Config.remoteDB)
+            if (this.Config.remoteDB) {
+                Utilities.showStatus("Initializing remote database...");
                 this.#remoteDB = new RemoteDatabase(this.Config.remoteDB.name, this.Config.remoteDB.uri);
+            }
             this.createDefaultData();
         } catch (error) {
             Utilities.showError("Error starting up server! err: %s", error.message);
@@ -137,7 +139,7 @@ class Server {
     }
     async verifyBearer(userId, password) {
         try {
-            const user = DB.Users.findOne({ _id: userId });
+            const user = await DB.Users.findOneAsync({ _id: userId });
             if (!user) throw new Error("No User Found");
             if (user.token !== password) throw new Error("Invalid Token");
             return user;
@@ -146,8 +148,8 @@ class Server {
         }
     }
 
-    createDefaultData() {
-        if (DB.Business.find().count()) {
+    async createDefaultData() {
+        if (await DB.Business.find().countAsync()) {
             Utilities.showStatus("Default data already exists!");
             return;
         }
@@ -156,7 +158,6 @@ class Server {
             address: "1234 Main St. Anytown, USA",
         });
         business.save();
-
         const channels = this.Config.channels;
         if (channels && channels.length) {
             for (const channel of channels) {

@@ -74,4 +74,5 @@ class Utilities {
     };
 }
 
-export default Util = new Utilities();
+const Util = new Utilities();
+export default Util;

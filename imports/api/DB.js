@@ -73,14 +73,14 @@ export class Channels {
         return this.Provider.sendSMS(to, message);
     }
 
-    save() {
+    async save() {
         if (this._id) {
             this.updatedAt = moment().valueOf();
-            DB.Channels.update({ _id: this._id }, this);
+            await DB.Channels.update({ _id: this._id }, this);
         } else {
             this.createdAt = moment().valueOf();
             delete this._id;
-            this._id = DB.Channels.insert(this);
+            this._id = await DB.Channels.insert(this);
         }
     }
 }
@@ -99,14 +99,14 @@ export class Business {
             address: "",
         };
     }
-    save() {
+    async save() {
         if (this._id) {
             this.updatedAt = moment().valueOf();
-            DB.Business.update({ _id: this._id }, this);
+            await DB.Business.update({ _id: this._id }, this);
         } else {
             this.createdAt = moment().valueOf();
             delete this._id;
-            this._id = DB.Business.insert(this);
+            this._id = await DB.Business.insert(this);
         }
     }
 }
@@ -202,9 +202,9 @@ export class Consumer {
         const last = new RegExp(lastName, "i");
         return frist.test(this.firstName) && last.test(this.lastName);
     }
-    sendOTP(number, sessionId) {
+    async sendOTP(number, sessionId) {
         if (this.contactInfo.mobile || number) {
-            const channel = DB.Channels.findOne({ businessId: Consumer.Default.businessId });
+            const channel = await DB.Channels.findOneAsync({ businessId: Consumer.Default.businessId });
             if (!channel) return Promise.reject("no channel");
             const ch = new Channels(channel);
             let phonenumber = this.contactInfo.mobile;
@@ -262,26 +262,26 @@ export class Consumer {
         return Promise.resolve("expired");
     }
 
-    save() {
+    async save() {
         if (this._id) {
             this.updatedAt = moment().valueOf();
-            DB.Consumers.update({ _id: this._id }, this, { upsert: true });
+            await DB.Consumers.update({ _id: this._id }, this, { upsert: true });
         } else {
             this.createdAt = moment().valueOf();
             delete this._id;
-            this._id = DB.Consumers.insert(this);
+            this._id = await DB.Consumers.insert(this);
         }
     }
-    saveTemp() {
-        const exist = DB.Temps.findOne({ "contactInfo.mobile": this.contactInfo.mobile });
+    async saveTemp() {
+        const exist = await DB.Temps.findOneAsync({ "contactInfo.mobile": this.contactInfo.mobile });
         if (exist) {
             this._id = exist._id;
             this.updatedAt = moment().valueOf();
-            DB.Temps.update({ _id: this._id }, this);
+            await DB.Temps.update({ _id: this._id }, this);
         } else {
             this.createdAt = moment().valueOf();
             delete this._id;
-            this._id = DB.Temps.insert(this);
+            this._id = await DB.Temps.insert(this);
         }
     }
 }

@@ -537,37 +537,37 @@ class Session {
     onStart() {
         RedisVent.Session.triggerUpsert(SESSION_KEY.UPDATE_CONVERSAION, "session", { transcript: this.#transcript, checklist: this.#checklist });
     }
-    onEnd() {
+    async onEnd() {
         const query = { id: this.SessionId };
         if (this.IsSquadCall) {
             delete query.id;
             query.phoneCallProviderId = this.SessionId;
         }
-        DB.Sessions.rawCollection().updateOne(query, { $set: { ...this.#call, status: this.#status, transcript: this.#transcript } }).then(() => {
+        await DB.Sessions.rawCollection().updateOne(query, { $set: { ...this.#call, status: this.#status, transcript: this.#transcript } }).then(() => {
             this.#event.emit(SESSION_EVENTS.END, this.SessionId);
         });
     }
     setData(data) {
         this.#data = data;
     }
-    init(call) {
-        DB.Sessions.insert(call);
+    async init(call) {
+        await DB.Sessions.insert(call);
     }
-    updates(update, forced = false) {
+    async updates(update, forced = false) {
         const query = { id: this.SessionId };
         if (this.IsSquadCall) {
             delete query.id;
             query.phoneCallProviderId = this.SessionId;
         }
         if (forced) {
-            DB.Sessions.update(query, { $set: update });
+            await DB.Sessions.update(query, { $set: update });
             return;
         }
         if (this.#debounce) {
             clearTimeout(this.#debounce);
         }
-        this.#debounce = setTimeout(Meteor.bindEnvironment(() => {
-            DB.Sessions.update(query, { $set: update });
+        this.#debounce = setTimeout(Meteor.bindEnvironment(async () => {
+            await DB.Sessions.update(query, { $set: update });
         }), 1000 * 3);
     }
     processConversations(conversation = []) {
@@ -580,10 +580,10 @@ class Session {
         const date = new Date(dateString);
         return date.toLocaleString('en-US', options);
     }
-    updateTranscript({ transcriptType, role, transcript, timestamp }) {
+    async updateTranscript({ transcriptType, role, transcript, timestamp }) {
         if (transcriptType === "final") {
             this.#transcript.push({ transcriptType, role, transcript, timestamp });
-            DB.Sessions.rawCollection().updateOne({ id: this.SessionId }, { $push: { transcript: { transcriptType, role, transcript, timestamp } } });
+            await DB.Sessions.rawCollection().updateOne({ id: this.SessionId }, { $push: { transcript: { transcriptType, role, transcript, timestamp } } });
         }
         RedisVent.Session.triggerUpsert(SESSION_KEY.UPDATE_TRANSCRIPT, "session", { transcriptType, role, transcript, timestamp });
     }

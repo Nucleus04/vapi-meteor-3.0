@@ -11,7 +11,7 @@ import HighchartsMore from "highcharts/highcharts-more";
 Exporting(Highcharts);
 HighchartsMore(Highcharts);
 
-import "../stylesheets/highchart.scss";
+import "../stylesheets/highchart.css";
 
 const _interactionsData = JSON.parse(
     '{"events":{"e-233":{"id":"e-233","name":"","animationType":"preset","eventTypeId":"MOUSE_CLICK","action":{"id":"","actionTypeId":"GENERAL_START_ACTION","config":{"delay":0,"easing":"","duration":0,"actionListId":"a-28","affectedElements":{},"playInReverse":false,"autoStopEventId":"e-234"}},"mediaQueries":["main","medium","small","tiny"],"target":{"id":"25181cfa-0032-558a-f115-f94669d851ee","appliesTo":"ELEMENT","styleBlockIds":[]},"targets":[{"id":"25181cfa-0032-558a-f115-f94669d851ee","appliesTo":"ELEMENT","styleBlockIds":[]}],"config":{"loop":false,"playInReverse":false,"scrollOffsetValue":null,"scrollOffsetUnit":null,"delay":null,"direction":null,"effectIn":null},"createdOn":1718384851609}},"actionLists":{"a-28":{"id":"a-28","title":"[open] convo column","actionItemGroups":[{"actionItems":[{"id":"a-28-n","actionTypeId":"GENERAL_DISPLAY","config":{"delay":0,"easing":"","duration":0,"target":{"selector":".topic-page-column-div.conversation","selectorGuids":["b5a6f072-ff94-d963-3927-24c971ffb1fa","4dabd16d-ec70-13fe-2da9-4269025137e6"]},"value":"block"}}]}],"useFirstGroupAsInitialState":false,"createdOn":1718384857653}},"site":{"mediaQueries":[{"key":"main","min":992,"max":10000},{"key":"medium","min":768,"max":991},{"key":"small","min":480,"max":767},{"key":"tiny","min":0,"max":479}]}}'
